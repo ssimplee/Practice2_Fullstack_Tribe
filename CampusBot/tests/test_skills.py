@@ -11,13 +11,16 @@ routing edge cases and Chinese input.
 
 import unittest
 
+from app.llm import StaticBackend
 from app.skills.registration_example import build_runtime
 
 
 class CampusLibrarySkillTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.runtime = build_runtime()
+        # Inject a deterministic backend so Translation/Summary skills do
+        # not require Ollama. Campus/Library skills ignore it.
+        cls.runtime = build_runtime(llm=StaticBackend("mock-response"))
 
     # --- Campus: known facts ---
     def test_campus_motto(self):
@@ -76,10 +79,10 @@ class CampusLibrarySkillTests(unittest.TestCase):
         r = self.runtime.execute("user01", "Where is the university library?")
         self.assertEqual(r["skill"], "library")
 
-    def test_translate_deferred_to_unmatched(self):
+    def test_translate_routes_to_translation(self):
         r = self.runtime.execute("user01", "Translate welcome into Chinese.")
-        self.assertIsNone(r["skill"])
-        self.assertEqual(r["status"], "unmatched")
+        self.assertEqual(r["skill"], "translation")
+        self.assertEqual(r["status"], "success")
 
     def test_out_of_scope_unmatched(self):
         r = self.runtime.execute("user01", "Where is the International Office?")

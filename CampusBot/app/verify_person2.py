@@ -10,6 +10,7 @@ edge cases (campus must not steal library questions), and Chinese input.
 
 from __future__ import annotations
 
+from app.llm import StaticBackend
 from app.skills.registration_example import build_runtime
 
 
@@ -52,8 +53,8 @@ CASES = [
     # --- Routing edge cases ---
     ("library not stolen by campus", "Where is the university library?",
      "library", lambda s: _has(s, "Nanhai Avenue")),
-    ("translate deferred (unmatched)", "Translate welcome into Chinese.",
-     None, lambda s: True),
+    ("translate routes to translation", "Translate welcome into Chinese.",
+     "translation", lambda s: True),
     ("international office unmatched", "Where is the International Office?",
      None, lambda s: True),
 
@@ -68,7 +69,7 @@ CASES = [
 
 
 def main() -> None:
-    runtime = build_runtime()
+    runtime = build_runtime(llm=StaticBackend("mock-response"))
     passed = 0
     failed = 0
 

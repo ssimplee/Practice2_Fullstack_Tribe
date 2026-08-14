@@ -58,6 +58,7 @@ _UNAVAILABLE_TOPICS = (
 _DEFER_KEYWORDS = (
     "library", "libraries", "图书馆", "book", "borrow",
     "translate", "summar", "summary",
+    "翻译", "总结", "摘要", "概括",
 )
 
 

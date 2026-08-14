@@ -47,7 +47,7 @@ class LibrarySkill(Skill):
         text = (message or "").lower()
         if not text.strip():
             return False
-        if any(w in text for w in ("translate", "summar", "summary")):
+        if any(w in text for w in ("translate", "summar", "summary", "翻译", "总结", "摘要", "概括")):
             return False
         return any(k in text for k in _LIBRARY_KEYWORDS)
 
