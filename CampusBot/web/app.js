@@ -100,7 +100,16 @@ async function sendMessage(rawMessage) {
       return;
     }
 
-    appendMessage("assistant", data.response || "The assistant returned no response.");
+    if (data.status === "blocked") {
+      appendMessage("notice", data.response || "Request blocked.", "Guardrail");
+    } else {
+      const skillLabel = data.skill ? `Assistant · ${data.skill}` : "Assistant";
+      appendMessage(
+        "assistant",
+        data.response || "The assistant returned no response.",
+        skillLabel,
+      );
+    }
     setConnection(true);
   } catch (error) {
     typingRow.remove();
