@@ -15,6 +15,9 @@ import json; print(json.dumps(r.execute('user01','Translate \"hi\" into Chinese.
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from app.governance import AuditLogger, GovernedRuntime, Guardrail
 from app.llm import LLMBackend, OllamaBackend
 from app.runtime.runtime import Runtime
 from app.skills.campus import CampusSkill
@@ -44,6 +47,27 @@ def build_runtime(llm: LLMBackend | None = None) -> Runtime:
     runtime.register_skill(TranslationSkill(llm))
     runtime.register_skill(SummarySkill(llm))
     return runtime
+
+
+def build_governed_runtime(
+    llm: LLMBackend | None = None,
+    audit_path: str | Path | None = None,
+    guardrail: Guardrail | None = None,
+) -> GovernedRuntime:
+    """Build the complete Person 1–4 execution flow.
+
+    Guardrails run before Person 1's Runtime. Allowed, blocked, unmatched,
+    and failed results are audited without retaining request/response text.
+    """
+
+    if audit_path is None:
+        project_root = Path(__file__).resolve().parents[2]
+        audit_path = project_root / "logs" / "audit.jsonl"
+    return GovernedRuntime(
+        runtime=build_runtime(llm),
+        audit_logger=AuditLogger(audit_path),
+        guardrail=guardrail,
+    )
 
 
 if __name__ == "__main__":
